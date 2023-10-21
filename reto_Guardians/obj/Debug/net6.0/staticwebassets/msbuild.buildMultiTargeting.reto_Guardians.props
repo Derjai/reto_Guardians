@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\reto_Guardians.props" />
+</Project>
