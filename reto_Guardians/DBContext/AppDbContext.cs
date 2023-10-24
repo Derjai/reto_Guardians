@@ -16,7 +16,7 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Agenda> Agendas { get; set; }
+    public virtual DbSet<Agendum> Agenda { get; set; }
 
     public virtual DbSet<Combate> Combates { get; set; }
 
@@ -36,7 +36,7 @@ public partial class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Agenda>(entity =>
+        modelBuilder.Entity<Agendum>(entity =>
         {
             entity.HasOne(d => d.IdHeroeNavigation).WithMany(p => p.Agenda)
                 .OnDelete(DeleteBehavior.ClientSetNull)

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace reto_Guardians.Models;
 
-public partial class Agenda
+public partial class Agendum
 {
     [Key]
     [Column("id_evento")]

@@ -34,7 +34,7 @@ public partial class Heroe
 
     [JsonIgnore]
     [InverseProperty("IdHeroeNavigation")]
-    public virtual ICollection<Agenda> Agenda { get; set; } = new List<Agenda>();
+    public virtual ICollection<Agendum> Agenda { get; set; } = new List<Agendum>();
 
     [JsonIgnore]
     [InverseProperty("IdHeroeNavigation")]

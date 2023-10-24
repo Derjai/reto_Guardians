@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using reto_Guardians.DBContext;
+using reto_Guardians.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
