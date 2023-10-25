@@ -20,6 +20,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Patrocinadores
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatrocinadorDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<PatrocinadorDTO>>> GetPatrocinadores()
         {
             try
@@ -47,10 +50,18 @@ namespace reto_Guardians.Controllers
         }
         // GET: api/Patrocinadores/BuscarPatrocinadorId/1
         [HttpGet("BuscarPatrocinadorId/{idpatrocinador}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatrocinadorDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PatrocinadorDTO>> GetPatrocinador(int idpatrocinador)
         {
             try
             {
+                if (idpatrocinador <= 0)
+                {
+                    return BadRequest("El id del patrocinador no puede ser 0 o menor a este");
+                }
                 var patrocinador = await _context.Patrocinadores
                 .Include(h => h.IdHeroeNavigation)
                 .FirstOrDefaultAsync(h => h.IdPatrocinador == idpatrocinador);
@@ -77,8 +88,16 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Patrocinadores/BuscarMayorPatrocinador/Batman
         [HttpGet("BuscarMayorPatrocinador/{alias}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatrocinadorDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<PatrocinadorDTO>>> GetMayorPatrocinador(string alias)
         {
+            if (string.IsNullOrEmpty(alias))
+            {
+                return BadRequest("Se debe proporcionar un alias para la búsqueda");
+            }
             var heroe = await _context.Heroes
             .Include(h => h.Patrocinadors)
             .SingleOrDefaultAsync(h => h.Alias == alias);
@@ -117,8 +136,16 @@ namespace reto_Guardians.Controllers
 
         // PUT: api/Patrocinadores/ModificarPatrocinador/5
         [HttpPut("ModificarPatrocinador/{idpatrocinador}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutPatrocinador(int idpatrocinador, [FromBody] PatrocinadorDTO patrocinadorUpdate)
         {
+            if (idpatrocinador <= 0)
+            {
+                return BadRequest("El id del patrocinador no puede ser 0 o menor a este");
+            }
             var existingPatrocinador = await _context.Patrocinadores.FindAsync(idpatrocinador);
             if (existingPatrocinador == null)
             {
@@ -161,18 +188,27 @@ namespace reto_Guardians.Controllers
 
         // POST: api/Patrocinadores/CrearPatrocinador
         [HttpPost("CrearPatrocinador")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatrocinadorDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Patrocinador>> PostPatrocinador([FromBody] PatrocinadorDTO nuevo)
         {
             if (_context.Patrocinadores == null)
             {
                 return Problem("Entity set 'AppDbContext.Patrocinadores' is null.");
             }
+            var patrocinadorExistente = await _context.Patrocinadores
+                .FirstOrDefaultAsync(a => a.Nombre== nuevo.Patrocinador && a.IdHeroe == nuevo.IdHeroe);
+            if (patrocinadorExistente != null)
+            {
+                return Conflict($"El patrocinador {nuevo.Patrocinador} ya está asociado con el heroe de id {nuevo.IdHeroe}");
+            }
             var patrocinadorNuevo = new Patrocinador
             {
                 Nombre = nuevo.Patrocinador ?? string.Empty,
-                IdHeroe = nuevo.IdHeroe.HasValue ? nuevo.IdHeroe.Value : 0,
+                IdHeroe = nuevo.IdHeroe??0,
                 Origen = nuevo.OrigenDinero ?? "Desconocido",
-                Monto = nuevo.Monto.HasValue ? nuevo.Monto.Value : 0
+                Monto = nuevo.Monto??0
             };
             _context.Patrocinadores.Add(patrocinadorNuevo);
             await _context.SaveChangesAsync();
@@ -181,16 +217,24 @@ namespace reto_Guardians.Controllers
 
         // DELETE: api/Patrocinadores/BorrarPatrocinador/5
         [HttpDelete("BorrarPatrocinador/{idpatrocinador}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeletePatrocinador(int idpatrocinador)
         {
             if (_context.Patrocinadores == null)
             {
-                return NotFound();
+                return NotFound("No existen registros");
+            }
+            if (idpatrocinador <= 0)
+            {
+                return BadRequest("El id del patrocinador no puede ser 0 o menor a este");
             }
             var patrocinador = await _context.Patrocinadores.Where(a => a.IdPatrocinador == idpatrocinador).FirstAsync();
             if (patrocinador == null)
             {
-                return NotFound();
+                return NotFound("No se encontró el patrocinador");
             }
             _context.Patrocinadores.Remove(patrocinador);
             await _context.SaveChangesAsync();

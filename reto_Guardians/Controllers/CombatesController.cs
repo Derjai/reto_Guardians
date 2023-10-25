@@ -20,7 +20,10 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Combates
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CombateDTO>>> GetCombatess()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombateDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<CombateDTO>>> GetCombates()
         {
             try
             {
@@ -50,10 +53,18 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Combates/BuscarCombateId/1
         [HttpGet("BuscarCombateId/{idcombate}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombateDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CombateDTO>> GetCombate(int idcombate)
         {
             try
             {
+                if (idcombate <= 0)
+                {
+                    return BadRequest("El id del combate no puede ser 0 o menor a este");
+                }
                 var lucha = await _context.Combates.FindAsync(idcombate);
                 if (lucha == null)
                 {
@@ -81,46 +92,69 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Combates/VillanoMasCombates/Batman
         [HttpGet("VillanoMasCombates/{aliasHeroe}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombateDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CombateDTO>> VillanoConMasCombates(string aliasHeroe)
         {
-            var heroe = await _context.Heroes
-            .Include(h => h.Combates)
-            .ThenInclude(c => c.IdVillanoNavigation)
-            .SingleOrDefaultAsync(h => h.Alias == aliasHeroe);
+            try {
+                if (string.IsNullOrEmpty(aliasHeroe))
+                {
+                    return BadRequest("Debe proporcionarse un alias para la búsqueda");
+                }
+                var heroe = await _context.Heroes
+                .Include(h => h.Combates)
+                .ThenInclude(c => c.IdVillanoNavigation)
+                .SingleOrDefaultAsync(h => h.Alias == aliasHeroe);
 
-            if (heroe == null)
-            {
-                return NotFound($"No existe el héroe {aliasHeroe}.");
+                if (heroe == null)
+                {
+                    return NotFound($"No existe el héroe {aliasHeroe}.");
+                }
+
+                var villanoConMasCombates = heroe.Combates
+                    .GroupBy(c => c.IdVillanoNavigation)
+                    .OrderByDescending(group => group.Count())
+                    .FirstOrDefault();
+
+                if (villanoConMasCombates == null)
+                {
+                    return NotFound($"{aliasHeroe} no ha tenido combates con ningún villano.");
+                }
+
+                var combates = villanoConMasCombates.Select(c => new CombateDTO
+                {
+                    IdCombate = c.IdCombate,
+                    Fecha = c.Fecha,
+                    Lugar = c.Lugar,
+                    Resultado = c.Resultado,
+                    IdHeroe = c.IdHeroe,
+                    Heroe = c.IdHeroeNavigation.Alias,
+                    IdVillano = c.IdVillano,
+                    Villano = c.IdVillanoNavigation.Alias
+                }).ToList();
+                return Ok(combates);
             }
-
-            var villanoConMasCombates = heroe.Combates
-                .GroupBy(c => c.IdVillanoNavigation)
-                .OrderByDescending(group => group.Count())
-                .FirstOrDefault();
-
-            if (villanoConMasCombates == null)
+            catch (Exception ex)
             {
-                return NotFound($"{aliasHeroe} no ha tenido combates con ningún villano.");
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
-
-            var combates = villanoConMasCombates.Select(c => new CombateDTO
-            {
-                IdCombate = c.IdCombate,
-                Fecha = c.Fecha,
-                Lugar = c.Lugar,
-                Resultado = c.Resultado,
-                IdHeroe = c.IdHeroe,
-                Heroe = c.IdHeroeNavigation.Alias, 
-                IdVillano = c.IdVillano,
-                Villano = c.IdVillanoNavigation.Alias
-            }).ToList();
-            return Ok(combates);
+            
         }
 
         // PUT: api/Combates/ModificarCombate/5
         [HttpPut("ModificarCombate/{idcombate}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutCombate(int idcombate, [FromBody] CombateDTO combateUpdate)
         {
+            if (idcombate <= 0)
+                {
+                    return BadRequest("El id del combate no puede ser 0 o menor a este");
+                }
             var existingCombate = await _context.Combates.FindAsync(idcombate);
             if (existingCombate == null)
             {
@@ -154,7 +188,7 @@ namespace reto_Guardians.Controllers
             {
                 if (!CombateExists(idcombate))
                 {
-                    return NotFound();
+                    return NotFound("No existe el combate con el id proporcionado");
                 }
                 else
                 {
@@ -166,18 +200,28 @@ namespace reto_Guardians.Controllers
 
         // POST: api/Combates/CrearCombate
         [HttpPost("CrearCombate")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombateDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Combate>> PostCombate([FromBody] CombateDTO nuevo)
         {
             if (_context.Combates == null)
             {
                 return Problem("Entity set 'AppDbContext.Combates' is null.");
             }
+            var combateExistente = await _context.Combates
+                .FirstOrDefaultAsync(a => a.IdVillano==nuevo.IdVillano && a.IdHeroe ==nuevo.IdHeroe && a.Fecha == nuevo.Fecha);
+
+            if (combateExistente != null)
+            {
+                return Conflict("Ya existe un combate registrado de los participantes en la fecha establecida");
+            }
             var combateNuevo = new Combate
             {
                 Lugar = nuevo.Lugar ?? string.Empty,
                 Resultado = nuevo.Resultado ?? string.Empty,
-                IdHeroe = nuevo.IdHeroe.HasValue ? nuevo.IdHeroe.Value : 0,
-                IdVillano = nuevo.IdVillano.HasValue ? nuevo.IdVillano.Value : 0,
+                IdHeroe = nuevo.IdHeroe ??  0,
+                IdVillano = nuevo.IdVillano ?? 0,
                 Fecha = nuevo.Fecha ?? DateTime.Now,
             };
             _context.Combates.Add(combateNuevo);
@@ -187,20 +231,35 @@ namespace reto_Guardians.Controllers
 
         // DELETE: api/Combates/BorrarCombate/5
         [HttpDelete("BorrarCombate/{idcombate}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCombate(int idcombate)
         {
-            if (_context.Combates == null)
-            {
-                return NotFound("No existen registros de combates");
+            try {
+                if (_context.Combates == null)
+                {
+                    return NotFound("No existen registros de combates");
+                }
+                if (idcombate <= 0)
+                {
+                    return BadRequest("El id del combate no puede ser 0 o menor a este");
+                }
+                var combate = await _context.Combates.Where(a => a.IdCombate == idcombate).FirstAsync();
+                if (combate == null)
+                {
+                    return NotFound($"No se encontró el combate con id {idcombate}");
+                }
+                _context.Combates.Remove(combate);
+                await _context.SaveChangesAsync();
+                return NoContent();
             }
-            var combate = await _context.Combates.Where(a => a.IdCombate == idcombate).FirstAsync();
-            if (combate == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
-            _context.Combates.Remove(combate);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            
         }
 
         private bool CombateExists(int id)

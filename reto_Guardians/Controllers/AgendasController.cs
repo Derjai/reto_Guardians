@@ -20,6 +20,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Agendas
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AgendaDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<AgendaDTO>>> GetAgendas()
         {
             try
@@ -48,10 +51,18 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Agendas/BuscarAgendaId/1
         [HttpGet("BuscarAgendaId/{idevento}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AgendaDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AgendaDTO>> GetAgenda(int idevento)
         {
             try
             {
+                if(idevento <= 0)
+                {
+                    return BadRequest("El id de evento no puede ser 0 o menor a este");
+                }
                 var agendum = await _context.Agenda
                 .Include(h => h.IdHeroeNavigation)
                 .FirstOrDefaultAsync(h => h.IdEvento == idevento);
@@ -78,70 +89,109 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Agendas/BuscarAgendaAlias/Batman
         [HttpGet("BuscarAgendaAlias/{alias}")]
-        public async Task<ActionResult<IEnumerable<AgendaDTO>>> GetAgenda(string alias)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AgendaDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<AgendaDTO>>> GetAgendaAlias(string alias)
         {
-            var heroe = await _context.Heroes.SingleOrDefaultAsync(h => h.Alias == alias);
-
-            if (heroe == null)
-            {
-                return NotFound($"No existe el héroe {alias}.");
-            }
-
-            if (_context.Agenda == null)
-            {
-                return NotFound("La entidad 'Agenda' es nula.");
-            }
-
-            var agendaData = await _context.Agenda
-                .Where(a => a.IdHeroeNavigation.Alias == alias)
-                .Select(a => new AgendaDTO
+            try {
+                if(string.IsNullOrEmpty(alias))
                 {
-                    IdEvento = a.IdEvento,
-                    Evento = a.Evento,
-                    IdHeroe = a.IdHeroe,
-                    Heroe = a.IdHeroeNavigation.Alias,
-                    Descripcion = a.Descripcion,
-                    Fecha = a.Fecha
-                })
-                .ToListAsync();
+                    return BadRequest("Debe proporcionarse un alias para la búsqueda");
+                }
+                var heroe = await _context.Heroes.SingleOrDefaultAsync(h => h.Alias == alias);
 
-            if (!agendaData.Any())
-            {
-                return NotFound($"No existen eventos para {alias}");
+                if (heroe == null)
+                {
+                    return NotFound($"No existe el héroe {alias}.");
+                }
+
+                if (_context.Agenda == null)
+                {
+                    return NotFound("La entidad 'Agenda' es nula.");
+                }
+
+                var agendaData = await _context.Agenda
+                    .Where(a => a.IdHeroeNavigation.Alias == alias)
+                    .Select(a => new AgendaDTO
+                    {
+                        IdEvento = a.IdEvento,
+                        Evento = a.Evento,
+                        IdHeroe = a.IdHeroe,
+                        Heroe = a.IdHeroeNavigation.Alias,
+                        Descripcion = a.Descripcion,
+                        Fecha = a.Fecha
+                    })
+                    .ToListAsync();
+
+                if (!agendaData.Any())
+                {
+                    return NotFound($"No existen eventos para {alias}");
+                }
+
+                return Ok(agendaData);
             }
-
-            return Ok(agendaData);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+            
         }
 
         // GET: api/Agendas/BuscarAgendaFecha/2023-10-11
         [HttpGet("BuscarAgendaFecha/{fecha}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AgendaDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<AgendaDTO>>> GetAgendaPorFecha(DateTime fecha)
         {
-            if (_context.Agenda == null)
-            {
-                return NotFound("La entidad 'Agenda' es nula.");
-            }
-            var eventosEnFecha = await _context.Agenda.Where(agenda => agenda.Fecha == fecha).Select(agenda => new AgendaDTO
-            {
-                IdEvento = agenda.IdEvento,
-                IdHeroe = agenda.IdHeroe,
-                Heroe = agenda.IdHeroeNavigation.Alias,
-                Evento = agenda.Evento,
-                Descripcion = agenda.Descripcion,
-                Fecha = agenda.Fecha
-            }).ToListAsync();
-            if (eventosEnFecha.Count == 0)
-            {
-                return NotFound($"No existen eventos para {fecha}");
-            }
+            try {
+                if (fecha == DateTime.MinValue)
+                {
+                    return BadRequest("La fecha ingresada no es válida.");
+                }
+                if (_context.Agenda == null)
+                {
+                    return NotFound("La entidad 'Agenda' es nula.");
+                }
+                var eventosEnFecha = await _context.Agenda.Where(agenda => agenda.Fecha == fecha).Select(agenda => new AgendaDTO
+                {
+                    IdEvento = agenda.IdEvento,
+                    IdHeroe = agenda.IdHeroe,
+                    Heroe = agenda.IdHeroeNavigation.Alias,
+                    Evento = agenda.Evento,
+                    Descripcion = agenda.Descripcion,
+                    Fecha = agenda.Fecha
+                }).ToListAsync();
+                if (eventosEnFecha.Count == 0)
+                {
+                    return NotFound($"No existen eventos para {fecha}");
+                }
 
-            return Ok(eventosEnFecha);
+                return Ok(eventosEnFecha);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+            
         }
 
         // PUT: api/Agendas/ModificarAgenda/5
         [HttpPut("ModificarAgenda/{idevento}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutAgenda(int idevento, [FromBody] AgendaDTO agendaUpdate)
         {
+            if (idevento <= 0)
+            {
+                return BadRequest("El id de evento no puede ser 0 o menor a este");
+            }
             var existingAgenda = await _context.Agenda.FindAsync(idevento);
             if (existingAgenda == null)
             {
@@ -172,7 +222,7 @@ namespace reto_Guardians.Controllers
             {
                 if (!AgendaExists(idevento))
                 {
-                    return NotFound();
+                    return NotFound($"No existe el evento con id {idevento}");
                 }
                 else
                 {
@@ -184,40 +234,66 @@ namespace reto_Guardians.Controllers
 
         // POST: api/Agendas/CrearAgenda
         [HttpPost("CrearAgenda")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AgendaDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Agendum>> PostAgenda([FromBody] AgendaDTO nuevo)
         {
+
             if (_context.Agenda == null)
             {
                 return Problem("Entity set 'AppDbContext.Agenda' is null.");
             }
+            var eventoExistente = await _context.Agenda
+                .FirstOrDefaultAsync(a => a.Descripcion == nuevo.Descripcion && a.Fecha == nuevo.Fecha);
+
+            if (eventoExistente != null)
+            {
+                return Conflict("Ya existe un evento con la misma descripción y fecha.");
+            }
             var agendaNueva = new Agendum
             {
-                IdHeroe = nuevo.IdHeroe.HasValue ? nuevo.IdHeroe.Value : 0,
-                Descripcion = nuevo.Descripcion ?? string.Empty,
+                IdHeroe = nuevo.IdHeroe ?? 0,
+                Descripcion = nuevo.Descripcion ?? "",
                 Fecha = nuevo.Fecha ?? DateTime.Now,
-                Evento = nuevo.Evento ?? string.Empty
+                Evento = nuevo.Evento ?? "Desconocido"
             };
             _context.Agenda.Add(agendaNueva);
             await _context.SaveChangesAsync();
             return Ok(agendaNueva);
+
         }
 
         // DELETE: api/Agendas/BorrarAgenda/5
         [HttpDelete("BorrarAgenda/{idevento}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAgenda(int idevento)
         {
-            if (_context.Agenda == null)
+            try {
+                if (idevento <= 0)
+                {
+                    return BadRequest("El id de evento no puede ser 0 o menor a este");
+                }
+                if (_context.Agenda == null)
+                {
+                    return NotFound("No hay registros");
+                }
+                var agendum = await _context.Agenda.Where(a => a.IdEvento == idevento).FirstAsync();
+                if (agendum == null)
+                {
+                    return NotFound($"No existe el evento con id {idevento}");
+                }
+                _context.Agenda.Remove(agendum);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            } catch(Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
-            var agendum = await _context.Agenda.Where(a => a.IdEvento == idevento).FirstAsync();
-            if (agendum == null)
-            {
-                return NotFound();
-            }
-            _context.Agenda.Remove(agendum);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            
         }
 
         private bool AgendaExists(int id)

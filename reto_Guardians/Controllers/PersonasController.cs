@@ -20,6 +20,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Personas
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PersonaDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<PersonaDTO>>> GetPersonas()
         {
             try
@@ -46,10 +49,18 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Personas/BuscarPersonasId/1
         [HttpGet("BuscarPersonasId/{idpersona}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PersonaDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Persona>> GetPersona(int idpersona)
         {
             try
             {
+                if (idpersona<= 0)
+                {
+                    return BadRequest("El id de la persona no puede ser 0 o menor a este");
+                }
                 var persona = await _context.Personas
                 .FirstOrDefaultAsync(p => p.IdPersona == idpersona);
                 if (persona == null)
@@ -66,8 +77,16 @@ namespace reto_Guardians.Controllers
 
         // PUT: api/Personas/ModificarPersona/5
         [HttpPut("ModificarPersonas/{idpersona}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PersonaDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutPersona(int idpersona, [FromBody] PersonaDTO personaUpdate)
         {
+            if (idpersona <= 0)
+            {
+                return BadRequest("El id de la persona no puede ser 0 o menor a este");
+            }
             var existingPersona = await _context.Personas.FindAsync(idpersona);
             if (existingPersona == null)
             {
@@ -100,14 +119,23 @@ namespace reto_Guardians.Controllers
         }
         // POST: api/Personas/CrearPersona
         [HttpPost("CrearPersona")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PersonaDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Persona>> PostPersona([FromBody] PersonaDTO nueva)
         {
             try
             {
-                    var personaNueva = new Persona
+                var personaExistente = await _context.Personas
+                .FirstOrDefaultAsync(a => a.Nombre == nueva.Nombre && a.Edad == nueva.Edad);
+                if (personaExistente != null)
+                {
+                    return Conflict($"La persona {nueva.Nombre} ya existe");
+                }
+                var personaNueva = new Persona
                     {
                         Nombre = nueva.Nombre ?? string.Empty,
-                        Edad = nueva.Edad.HasValue ? nueva.Edad.Value : 0
+                        Edad = nueva.Edad ?? 0
                     };
                     _context.Personas.Add(personaNueva);
                     await _context.SaveChangesAsync();
@@ -121,16 +149,24 @@ namespace reto_Guardians.Controllers
 
         // DELETE: api/Personas/BorrarPersona/5
         [HttpDelete("BorrarPersona/{idpersona}")]
-        public async Task<IActionResult> DeleteHeroe(int idpersona)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeletePersona(int idpersona)
         {
+            if (idpersona <= 0)
+            {
+                return BadRequest("El id de la persona no puede ser 0 o menor a este");
+            }
             if (_context.Personas == null)
             {
-                return NotFound();
+                return NotFound("No se encontraron registros");
             }
             var persona = await _context.Personas.Where(a => a.IdPersona == idpersona).FirstAsync();
             if (persona == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró la persona con el id {idpersona}");
             }
             _context.Personas.Remove(persona);
             await _context.SaveChangesAsync();

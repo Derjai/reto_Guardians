@@ -21,6 +21,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Villanos
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Villano))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<VillanoDTO>>> GetVillanos()
         {
             try
@@ -51,10 +54,18 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Villanos/BuscarVillanoId/1
         [HttpGet("BuscarVillanoId/{idvillano}")]
-        public async Task<ActionResult<VillanoDTO>> GetVillanos(int idvillano)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<VillanoDTO>> GetVillano(int idvillano)
         {
             try
             {
+                if (idvillano <= 0)
+                {
+                    return BadRequest("El id del villano no puede ser 0 o menor a este");
+                }
                 var villano = await _context.Villanos
                 .Include(v => v.IdPersonaNavigation)
                 .FirstOrDefaultAsync(v => v.IdVillano == idvillano);
@@ -82,10 +93,18 @@ namespace reto_Guardians.Controllers
         }
         // GET: api/Villanos/BuscarVillanoAlias/Joker
         [HttpGet("BuscarVillanoAlias/{villano}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<VillanoDTO>> GetVillanoAlias(string villano)
         {
             try
             {
+                if (string.IsNullOrEmpty(villano))
+                {
+                    return BadRequest("Debe proporcionarse un alias para la búsqueda");
+                }
                 var vil = await _context.Villanos
                 .Include(v => v.IdPersonaNavigation)
                 .FirstOrDefaultAsync(v => v.Alias == villano);
@@ -114,6 +133,10 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Villanos/BuscarVillanoOrigen/Explosión Laboratorio
         [HttpGet("BuscarVillanoOrigen/{origen}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<VillanoDTO>>> GetVillanosOrigen(string origen)
         {
             try
@@ -121,6 +144,10 @@ namespace reto_Guardians.Controllers
                 if (_context.Villanos == null)
                 {
                     return NotFound("La entidad 'Villanos' es nula.");
+                }
+                if (string.IsNullOrEmpty(origen))
+                {
+                    return BadRequest("Debe proporcionarse un origen para la búsqueda");
                 }
                 var villanosConOrigen = await _context.Villanos.Where(v => v.Origen == origen).Select(v => new VillanoDTO
                 {
@@ -147,13 +174,21 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Villanos/BuscarVillanosDebilidad/Fuego
         [HttpGet("BuscarVillanosDebilidad/{debilidad}")]
-        public async Task<ActionResult<IEnumerable<VillanoDTO>>> GetHeroesPoder(string debilidad)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<VillanoDTO>>> GetVillanosDebilidad(string debilidad)
         {
             try
             {
                 if (_context.Villanos == null)
                 {
                     return NotFound("La entidad 'Villanos' es nula.");
+                }
+                if (string.IsNullOrEmpty(debilidad))
+                {
+                    return BadRequest("Debe proporcionarse una debilidad para la búsqueda");
                 }
                 var villanosConDebilidad = await _context.Villanos.Where(v => v.Debilidad == debilidad).Select(v => new VillanoDTO
                 {
@@ -181,6 +216,9 @@ namespace reto_Guardians.Controllers
         // GET: api/Villanos/MasDerrotado
 
         [HttpGet("MasDerrotado")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<VillanoDTO>> MasDerrotado()
         {
             try
@@ -225,8 +263,16 @@ namespace reto_Guardians.Controllers
 
         // PUT: api/Villano/ModificarVillano/5
         [HttpPut("ModificarVillano/{idvillano}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutVillano(int idvillano, [FromBody] VillanoDTO VillanoUpdate)
         {
+            if (idvillano <= 0)
+            {
+                return BadRequest("El id del villano no puede ser 0 o menor a este");
+            }
             var existingVillano = await _context.Villanos.FindAsync(idvillano);
             if (existingVillano == null)
             {
@@ -256,7 +302,7 @@ namespace reto_Guardians.Controllers
             {
                 if (!VillanoExists(idvillano))
                 {
-                    return NotFound();
+                    return NotFound($"No existe el villano con id {idvillano}");
                 }
                 else
                 {
@@ -267,12 +313,21 @@ namespace reto_Guardians.Controllers
         }
         // POST: api/Villanos/CrearVillano
         [HttpPost("CrearVillano")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VillanoDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Villano>> PostVillano([FromBody] VillanoDTO nuevo)
         {
             try
             {
-                if (nuevo.IdPersona != null)
+                var villanoExistente = await _context.Villanos
+                    .FirstOrDefaultAsync(a => a.Alias == nuevo.Alias);
+                if (villanoExistente != null)
                 {
+                    return Conflict($"El villano {nuevo.Alias} ya existe");
+                }
+                if (nuevo.IdPersona != null)
+                {   
                     var villanoNuevo = new Villano
                     {
                         Alias = nuevo.Alias ?? string.Empty,
@@ -288,10 +343,16 @@ namespace reto_Guardians.Controllers
                 }
                 else
                 {
+                    var personaExistente = await _context.Personas
+                    .FirstOrDefaultAsync(a => a.Nombre == nuevo.Nombre && a.Edad == nuevo.Edad);
+                    if (personaExistente != null)
+                    {
+                        return Conflict($"La persona {nuevo.Nombre} ya existe");
+                    }
                     var persona = new Persona
                     {
                         Nombre = nuevo.Nombre ?? string.Empty,
-                        Edad = nuevo.Edad.HasValue ? nuevo.Edad.Value : 0
+                        Edad = nuevo.Edad ?? 1
                     };
 
                     _context.Personas.Add(persona);
@@ -318,11 +379,19 @@ namespace reto_Guardians.Controllers
 
         // DELETE: api/Villano/BorrarVillano/5
         [HttpDelete("BorrarVillano/{idheroe}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteVillano(int idvillano)
         {
             if (_context.Villanos == null)
             {
                 return NotFound();
+            }
+            if (idvillano<= 0)
+            {
+                return BadRequest("El id del villano no puede ser 0 o menor a este");
             }
             var villano = await _context.Villanos.Where(a => a.IdVillano == idvillano).FirstAsync();
             if (villano == null)

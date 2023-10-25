@@ -20,6 +20,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<HeroeDTO>>> GetHeroes()
         {
             try
@@ -49,10 +52,18 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes/BuscarHeroeId/1
         [HttpGet("BuscarHeroeId/{idheroe}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<HeroeDTO>> GetHeroe(int idheroe)
         {
             try
             {
+                if (idheroe <= 0)
+                {
+                    return BadRequest("El id del heroe no puede ser 0 o menor a este");
+                }
                 var heroe = await _context.Heroes
                 .Include(h => h.IdPersonaNavigation)
                 .FirstOrDefaultAsync(h => h.IdHeroe == idheroe);
@@ -79,10 +90,18 @@ namespace reto_Guardians.Controllers
         }
         // GET: api/Heroes/BuscarHeroeAlias/Batman
         [HttpGet("BuscarHeroeAlias/{heroe}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<HeroeDTO>> GetHeroeAlias(string heroe)
         {
             try
             {
+                if (string.IsNullOrEmpty(heroe))
+                {
+                    return BadRequest("Debe proporcionarse un alias para la búsqueda");
+                }
                 var hero = await _context.Heroes
                 .Include(h => h.IdPersonaNavigation)
                 .FirstOrDefaultAsync(h => h.Alias == heroe);
@@ -110,6 +129,10 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes/BuscarHeroePoder/Volar
         [HttpGet("BuscarHeroePoder/{poder}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<HeroeDTO>>> GetHeroesPoder(string poder)
         {
             try
@@ -117,6 +140,10 @@ namespace reto_Guardians.Controllers
                 if (_context.Heroes == null)
                 {
                     return NotFound("La entidad 'Heroes' es nula.");
+                }
+                if (string.IsNullOrEmpty(poder))
+                {
+                    return BadRequest("Debe proporcionarse un poder para la búsqueda");
                 }
                 var heroesConPoder = await _context.Heroes.Where(h => h.Poder == poder).Select(h => new HeroeDTO
                 {
@@ -142,6 +169,10 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes/BuscarHeroePoder/Familiar
         [HttpGet("BuscarHeroeRelacion/{relacion}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<HeroeDTO>>> GetHeroesRelacion(string relacion)
         {
             try
@@ -149,6 +180,10 @@ namespace reto_Guardians.Controllers
                 if (_context.Heroes == null)
                 {
                     return NotFound("La entidad 'Heroes' es nula.");
+                }
+                if (string.IsNullOrEmpty(relacion))
+                {
+                    return BadRequest("Debe proporcionarse una relación para la búsqueda");
                 }
                 var heroesConRelacion = await _context.Heroes
                 .Where(h => _context.RelacionesPersonales
@@ -177,6 +212,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes/PorEdad
         [HttpGet("PorEdad")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<HeroeDTO>>> GetHeroesEdad()
         {
             try
@@ -209,6 +247,9 @@ namespace reto_Guardians.Controllers
 
         // GET: api/Heroes/Top3
         [HttpGet("Top3")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<HeroeDTO>>> Top3()
         {
             try
@@ -249,8 +290,16 @@ namespace reto_Guardians.Controllers
 
         // PUT: api/Heroes/ModificarHeroe/5
         [HttpPut("ModificarHeroe/{idheroe}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutHeroe(int idheroe, [FromBody] HeroeDTO HeroeUpdate)
         {
+            if (idheroe <= 0)
+            {
+                return BadRequest("El id del heroe no puede ser 0 o menor a este");
+            }
             var existingHeroe = await _context.Heroes.FindAsync(idheroe);
             if (existingHeroe == null)
             {
@@ -287,10 +336,17 @@ namespace reto_Guardians.Controllers
         }
         // POST: api/Heroes/CrearHeroe
         [HttpPost("CrearHeroe")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HeroeDTO))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Heroe>> PostHeroe([FromBody] HeroeDTO nuevo)
         {
-            try
-            {
+                var heroeExistente = await _context.Heroes
+                .FirstOrDefaultAsync(a => a.Alias == nuevo.Alias);
+                if (heroeExistente != null)
+                {
+                    return Conflict($"El heroe {nuevo.Alias} ya existe");
+                }
                 if (nuevo.IdPersona != null)
                 {
                     var heroeNuevo = new Heroe
@@ -307,10 +363,16 @@ namespace reto_Guardians.Controllers
                 }
                 else
                 {
-                    var persona = new Persona
+                    var personaExistente = await _context.Personas
+                    .FirstOrDefaultAsync(a => a.Nombre == nuevo.Nombre && a.Edad == nuevo.Edad);
+                    if (personaExistente != null)
+                    {
+                        return Conflict($"La persona {nuevo.Nombre} ya existe");
+                    }
+                var persona = new Persona
                     {
                         Nombre = nuevo.Nombre ?? string.Empty,
-                        Edad = nuevo.Edad.HasValue ? nuevo.Edad.Value:0
+                        Edad = nuevo.Edad ?? 1
                     };
 
                     _context.Personas.Add(persona);
@@ -322,30 +384,32 @@ namespace reto_Guardians.Controllers
                         Poder = nuevo.Poder ?? "Ninguno",
                         Debilidad = nuevo.Debilidad ?? "Ninguna"
                     };
-
                     _context.Heroes.Add(heroeNuevo);
                     await _context.SaveChangesAsync();
                     return Ok(heroeNuevo);
                 }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
         }
 
         // DELETE: api/Heroes/BorrarHeroe/5
         [HttpDelete("BorrarHeroe/{idheroe}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteHeroe(int idheroe)
         {
             if (_context.Heroes == null)
             {
-                return NotFound();
+                return NotFound("No existen registros");
+            }
+            if (idheroe <= 0)
+            {
+                return BadRequest("El id del heroe no puede ser 0 o menor a este");
             }
             var heroe = await _context.Heroes.Where(a => a.IdHeroe == idheroe).FirstAsync();
             if (heroe == null)
             {
-                return NotFound();
+                return NotFound($"El heroe con id {idheroe} no existe");
             }
             _context.Heroes.Remove(heroe);
             await _context.SaveChangesAsync();
