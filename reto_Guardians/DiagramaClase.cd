@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="reto_Guardians.Controllers.AgendasController" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAKAACBAABAAAAAAAAAAABAAAAAAABAAAAIAAAEA=</HashCode>
+      <FileName>Controllers\AgendasController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.CombatesController" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAQAAAAAAABAAAAAAAAAACEAAAAgACAAAAAAQAAAA=</HashCode>
+      <FileName>Controllers\CombatesController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.HeroesController" Collapsed="true">
+    <Position X="4.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAYAAAAAABAAAIAAAAAAAAIAAAAAAAAAQgAAAEEA=</HashCode>
+      <FileName>Controllers\HeroesController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.PatrocinadoresController" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BAAEAAAQAAAABAAEAAAAAAABAAAACAAAAAAAAAQAAAA=</HashCode>
+      <FileName>Controllers\PatrocinadoresController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.PersonasController" Collapsed="true">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEEAAAAABABAAggAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\PersonasController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.RelacionesPController" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAABAAIAAAAAAAAAAAAAAAQAAAQAAIAAAQ=</HashCode>
+      <FileName>Controllers\RelacionesPController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.Controllers.VillanosController" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAABAIQIBAIAAAAQAAAAAAAEAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Controllers\VillanosController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="reto_Guardians.DTO.AgendaDTO" Collapsed="true">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAIAAAAAABAgAAACAAAAAAAAAAAAg=</HashCode>
+      <FileName>DTO\AgendaDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.CombateDTO" Collapsed="true">
+    <Position X="8.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACgAAAAEEAAAAAAAAAAAAQCAAAAAAAAAIAAg=</HashCode>
+      <FileName>DTO\CombateDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.HeroeDTO" Collapsed="true">
+    <Position X="12.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAACAAgAAAAAAAAiABAAIAAAAAAAA=</HashCode>
+      <FileName>DTO\HeroeDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.PatrocinadorDTO" Collapsed="true">
+    <Position X="12.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAACQACAAAAAAABAAAAg=</HashCode>
+      <FileName>DTO\PatrocinadorDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.PersonaDTO" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAgAAAAAAAAgAAAAAAAAAAAAA=</HashCode>
+      <FileName>DTO\PersonaDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.RelacionPDTO" Collapsed="true">
+    <Position X="14.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAgAQAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DTO\RelacionPDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DTO.VillanoDTO" Collapsed="true">
+    <Position X="10.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAIAAAAAACAAgAAAAAAAAgABAAIAAgAAAAA=</HashCode>
+      <FileName>DTO\VillanoDTO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Agendum" Collapsed="true">
+    <Position X="10.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAIAAAAAABAgAAACAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\Agendum.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Combate" Collapsed="true">
+    <Position X="12.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAACEEAAAAAAAAAAAAQCAAQAAAAAAIAAA=</HashCode>
+      <FileName>Models\Combate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Heroe" Collapsed="true">
+    <Position X="14" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAKAAAAAACAgAAAAAAAAACABAAIAAAAAAAA=</HashCode>
+      <FileName>Models\Heroe.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Patrocinador" Collapsed="true">
+    <Position X="11.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAgAAIAAAAACAAQAAAAhAAAAA=</HashCode>
+      <FileName>Models\Patrocinador.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Persona" Collapsed="true">
+    <Position X="11.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAEAgAAAAAAAAgAAAAIAAgAAAAg=</HashCode>
+      <FileName>Models\Persona.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.RelacionPersonal" Collapsed="true">
+    <Position X="14.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACABAAAAAQAAAAAAAAAAAAAACBAAAAACAAAAAAA=</HashCode>
+      <FileName>Models\RelacionPersonal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.Models.Villano" Collapsed="true">
+    <Position X="14.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAKAAAAAACAAAAAAAAAAACABAAIAAgAAAAA=</HashCode>
+      <FileName>Models\Villano.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="reto_Guardians.DBContext.AppDbContext" Collapsed="true">
+    <Position X="6.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQCQAAAAQAAAAAAAEAAAABABACAAAAIAAAg=</HashCode>
+      <FileName>DBContext\AppDbContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

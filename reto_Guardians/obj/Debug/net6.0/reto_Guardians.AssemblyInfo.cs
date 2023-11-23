@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("reto_Guardians")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c011d8abf917e1fa58e55047e6e4a67ba139392")]
 [assembly: System.Reflection.AssemblyProductAttribute("reto_Guardians")]
 [assembly: System.Reflection.AssemblyTitleAttribute("reto_Guardians")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
